@@ -2,39 +2,41 @@ package task
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type Task struct {
-	id          string
-	description string
-	isDone      bool
+	ID          string `json:"id"`
+	Description string `json:"description"`
+	IsDone      bool   `json:"is_done"`
 }
 
 func (t *Task) Pprint() {
 	divisor := strings.Repeat("=", 60)
 	fmt.Println(divisor)
-	fmt.Printf("ID: %s\n", t.id)
-	fmt.Printf("Description: %s\n", t.description)
+	fmt.Printf("ID: %s\n", t.ID)
+	fmt.Printf("Description: %s\n", t.Description)
 	fmt.Printf("Status: %v\n", t.getStatus())
 	fmt.Println(divisor)
 }
 
 func (t *Task) ToggleStatus() {
-	t.isDone = !(t.isDone)
+	t.IsDone = !(t.IsDone)
 }
 
 func (t *Task) getStatus() string {
-	if t.isDone == true {
+	if t.IsDone == true {
 		return "Done"
 	}
 	return "Pending"
 }
 
-func AddTask(description string) Task {
-	return Task{
-		id:          uuid.NewString(),
-		description: description,
+func CreateTask(description string) *Task {
+	id := uuid.NewString()
+	return &Task{
+		ID:          id,
+		Description: description,
 	}
 }
