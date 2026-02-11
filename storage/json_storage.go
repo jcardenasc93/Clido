@@ -40,15 +40,19 @@ func (s *JSONStorage) SaveTasks(t []*task.Task) error {
 	return nil
 }
 
-func (s *JSONStorage) DeleteTask(id string) error {
-	return nil
-}
-
 func (s *JSONStorage) GetTaskById(id string) (*task.Task, error) {
 	return nil, nil
 }
 
-func (s *JSONStorage) LoadTasks() []*task.Task {
-	tasks := []*task.Task{}
-	return tasks
+func (s *JSONStorage) LoadTasks() ([]*task.Task, error) {
+	var tasks []*task.Task
+	fileData, err := os.ReadFile(s.filePath)
+	if err != nil {
+		return tasks, &LoadFileError{filePath: s.filePath, details: err.Error()}
+	}
+	err = json.Unmarshal(fileData, &tasks)
+	if err != nil {
+		return tasks, &LoadFileError{filePath: s.filePath, details: err.Error()}
+	}
+	return tasks, nil
 }

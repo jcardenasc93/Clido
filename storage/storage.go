@@ -7,5 +7,5 @@ import (
 type Storage interface {
 	SaveTasks([]*task.Task) error
 	GetTaskById(string) (*task.Task, error)
-	LoadTasks() []*task.Task
+	LoadTasks() ([]*task.Task, error)
 }
