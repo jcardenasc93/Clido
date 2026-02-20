@@ -1,11 +1,16 @@
 package task
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type TaskNotFoundError struct {
-	id string
+	ID string
 }
 
 func (e *TaskNotFoundError) Error() string {
-	return fmt.Sprintf("Task with id %s not found", e.id)
+	return fmt.Sprintf("Task with id %s not found", e.ID)
 }
+
+var TaskWithNoDescriptionErr = errors.New("Task with no description is not allowed")

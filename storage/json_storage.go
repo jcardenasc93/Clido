@@ -13,16 +13,23 @@ type JSONStorage struct {
 }
 
 func NewJsonStorage(filePath string) *JSONStorage {
-	cwd, err := os.Getwd()
+	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
 	}
-	dirPath := filepath.Join(cwd, "exec", "output")
+	dirPath := filepath.Join(home, ".local", "share", "clido")
 
 	if err = os.MkdirAll(dirPath, 0755); err != nil {
 		log.Fatalf("Failed to create directory: %s\n%v", dirPath, err)
 	}
 	fullPath := filepath.Join(dirPath, filePath)
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		if err := os.WriteFile(fullPath, []byte("[]"), 0644); err != nil {
+			log.Fatalf("Failed to initialize storage file: %s\n%v", fullPath, err)
+		}
+	}
+
 	return &JSONStorage{
 		filePath: fullPath,
 	}
@@ -41,7 +48,16 @@ func (s *JSONStorage) SaveTasks(t []*task.Task) error {
 }
 
 func (s *JSONStorage) GetTaskById(id string) (*task.Task, error) {
-	return nil, nil
+	tasks, err := s.LoadTasks()
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range tasks {
+		if t.ID == id {
+			return t, nil
+		}
+	}
+	return nil, &task.TaskNotFoundError{ID: id}
 }
 
 func (s *JSONStorage) LoadTasks() ([]*task.Task, error) {
