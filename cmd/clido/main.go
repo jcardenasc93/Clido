@@ -27,7 +27,7 @@ func main() {
 
 func cmdHandler(tm *taskmanager.TaskManager) {
 	allowedCmd := []string{"create", "detail", "update", "delete"}
-	if len(os.Args) < 2 {
+	if len(os.Args) < 1 {
 		fmt.Printf("Missing command. Allowed ones: %v\n", allowedCmd)
 		os.Exit(1)
 	}
