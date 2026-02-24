@@ -30,6 +30,8 @@ func (c *CLI) Run() {
 		c.createHandler(args)
 	case "detail":
 		c.detailHandler("", args)
+	case "update":
+		c.updateHandler("", args)
 	default:
 		// Fallback: if it's not a known command, treat everything as a description for create
 		c.createHandler(os.Args[1:])
@@ -80,4 +82,25 @@ func (c *CLI) detailHandler(id string, args []string) {
 		task.Pprint()
 	}
 	fmt.Printf("\n%d tasks found\n", len(c.tm.Tasks))
+}
+
+func (c *CLI) updateHandler(id string, args []string) {
+	fs := flag.NewFlagSet("update", flag.ExitOnError)
+	idFlag := fs.String("id", id, "Task ID")
+	descFlag := fs.String("description", "", "New description")
+	statusFlag := fs.String("status", "", "Now task status")
+	fs.Parse(args)
+
+	tID := *idFlag
+	if tID == "" {
+		fmt.Printf("Error: Task ID is required to perform an update")
+		os.Exit(1)
+	}
+
+	t, err := c.tm.UpdateTask(tID, *descFlag, *statusFlag)
+	if err != nil {
+		fmt.Printf("\nError: %v", err)
+		os.Exit(1)
+	}
+	t.Pprint()
 }

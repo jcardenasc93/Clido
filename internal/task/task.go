@@ -54,3 +54,12 @@ func CreateTask(description string) *Task {
 		UpdatedAt:   time.Now(),
 	}
 }
+
+func (t *Task) Clone() *Task {
+	return &Task{
+		ID:          t.ID,
+		Description: t.Description,
+		CreatedAt:   t.CreatedAt,
+		UpdatedAt:   time.Now(),
+	}
+}

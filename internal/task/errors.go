@@ -14,3 +14,11 @@ func (e *TaskNotFoundError) Error() string {
 }
 
 var TaskWithNoDescriptionErr = errors.New("Task with no description is not allowed")
+
+type NoValidTaskStatusErr struct {
+	Status string
+}
+
+func (e *NoValidTaskStatusErr) Error() string {
+	return fmt.Sprintf("Status value: %s is not valid", e.Status)
+}
