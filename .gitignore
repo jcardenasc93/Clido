@@ -34,4 +34,4 @@ go.work.sum
 mise*
 
 exec/*
-clido
+/clido
