@@ -5,6 +5,7 @@ import (
 	"jcardenasc93/clido/internal/task"
 	"jcardenasc93/clido/storage"
 	"slices"
+	"sort"
 )
 
 type TaskManager struct {
@@ -74,9 +75,8 @@ func (m *TaskManager) UpdateTask(id string, desc string, status string) (*task.T
 		taskClone.Description = desc
 	}
 
-	allowedStatus := []string{"done", "pending"}
 	if status != "" {
-		if slices.Contains(allowedStatus, status) == true {
+		if slices.Contains(task.AllowedStatuses, status) == true {
 			taskClone.IsDone = status == "done"
 		} else {
 			return nil, &task.NoValidTaskStatusErr{Status: status}
@@ -97,4 +97,20 @@ func (m *TaskManager) UpdateTask(id string, desc string, status string) (*task.T
 
 	return taskClone, nil
 
+}
+
+func PPrintTasks(tasks []*task.Task, desc bool) {
+	if desc == true {
+		sort.Slice(tasks, func(i, j int) bool {
+			return tasks[j].UpdatedAt.Before(tasks[i].UpdatedAt)
+		})
+	} else {
+		sort.Slice(tasks, func(i, j int) bool {
+			return tasks[i].UpdatedAt.Before(tasks[j].UpdatedAt)
+		})
+	}
+	for _, t := range tasks {
+		t.Pprint()
+	}
+	fmt.Printf("\n%d tasks found\n", len(tasks))
 }

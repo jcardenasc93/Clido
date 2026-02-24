@@ -63,3 +63,5 @@ func (t *Task) Clone() *Task {
 		UpdatedAt:   time.Now(),
 	}
 }
+
+var AllowedStatuses = []string{"done", "pending"}

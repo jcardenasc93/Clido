@@ -3,8 +3,10 @@ package cli
 import (
 	"flag"
 	"fmt"
+	"jcardenasc93/clido/internal/task"
 	"jcardenasc93/clido/internal/taskManager"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -32,6 +34,8 @@ func (c *CLI) Run() {
 		c.detailHandler("", args)
 	case "update":
 		c.updateHandler("", args)
+	case "filter":
+		c.filterHandler(args)
 	default:
 		// Fallback: if it's not a known command, treat everything as a description for create
 		c.createHandler(os.Args[1:])
@@ -77,11 +81,7 @@ func (c *CLI) detailHandler(id string, args []string) {
 		task.Pprint()
 		return
 	}
-
-	for _, task := range c.tm.Tasks {
-		task.Pprint()
-	}
-	fmt.Printf("\n%d tasks found\n", len(c.tm.Tasks))
+	taskmanager.PPrintTasks(c.tm.Tasks, true)
 }
 
 func (c *CLI) updateHandler(id string, args []string) {
@@ -99,8 +99,47 @@ func (c *CLI) updateHandler(id string, args []string) {
 
 	t, err := c.tm.UpdateTask(tID, *descFlag, *statusFlag)
 	if err != nil {
-		fmt.Printf("\nError: %v", err)
+		fmt.Printf("\nError: %v\n", err)
 		os.Exit(1)
 	}
 	t.Pprint()
+}
+
+func (c *CLI) filterHandler(args []string) {
+	fs := flag.NewFlagSet("filter", flag.ExitOnError)
+	filterFlag := fs.String("type", "", "Filter type")
+	valueFlag := fs.String("value", "", "Filter value")
+	fs.Parse(args)
+
+	filterType := *filterFlag
+	filterValue := *valueFlag
+
+	if filterType == "" {
+		fmt.Printf("\nError: %v", task.MissingFilterTypeErr)
+		os.Exit(1)
+	}
+
+	if filterValue == "" {
+		fmt.Printf("\nError: %v", task.MissingFilterValueErr)
+		os.Exit(1)
+	}
+
+	if slices.Contains(task.AllowedFilterTypes, filterType) == false {
+		fmt.Printf("\nError: %v", task.NoValidFilterTypeErr{FilterType: filterType})
+		os.Exit(1)
+	}
+
+	switch filterType {
+	case "status":
+		filter, err := task.NewStatusFilter(filterValue)
+		if err != nil {
+			fmt.Printf("\nError: %v", err)
+			os.Exit(1)
+		}
+		tasks := filter.Filter(c.tm.Tasks)
+		taskmanager.PPrintTasks(tasks, true)
+
+	case "date-range":
+		fmt.Println("Not implemented yet.")
+	}
 }
